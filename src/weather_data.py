@@ -2,6 +2,9 @@ import requests
 import pandas as pd
 from datetime import datetime
 
+from geopy.geocoders import Nominatim
+from timezonefinder import TimezoneFinder
+
 def get_weather(latitude, longitude):
     url = (
         "https://api.open-meteo.com/v1/forecast"
@@ -93,6 +96,31 @@ def get_weather_forecast(latitude, longitude, days):
     else:
         raise Exception(f"Failed to fetch data: {response.status_code}")
 
+def get_location_and_timezone(city, country=None, postal_code=None):
+    geolocator = Nominatim(user_agent="location-tz-app")
+    query = city
+    if country:
+        query += f", {country}"
+    if postal_code:
+        query += f", {postal_code}"
+    
+    location = geolocator.geocode(query)
+    if location is None:
+        return {"error": "Location not found"}
 
-df_forecast = get_weather_forecast(52.2297, 21.0122, days=7)  # Warszawa, prognoza na 3 dni
-print(df_forecast)
+    tf = TimezoneFinder()
+    timezone_name = tf.timezone_at(lat=location.latitude, lng=location.longitude)
+
+    return {
+        "location": location.address,
+        "latitude": location.latitude,
+        "longitude": location.longitude,
+        "timezone": timezone_name
+    }
+
+#df_forecast = get_weather_forecast(52.2297, 21.0122, days=7)  # Warszawa, prognoza na 3 dni
+#print(df_forecast)
+
+
+location_info = get_location_and_timezone("Berlin", "Germany")
+print(location_info)
