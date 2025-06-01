@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 from datetime import datetime
 
-def get_weather_dataframe(latitude, longitude):
+def get_weather(latitude, longitude):
     url = (
         "https://api.open-meteo.com/v1/forecast"
         f"?latitude={latitude}"
@@ -54,6 +54,45 @@ def get_weather_dataframe(latitude, longitude):
     else:
         raise Exception(f"Failed to fetch data: {response.status_code}")
 
-# Przykład użycia
-df_weather = get_weather_dataframe(51.5074, -0.1278)  # Londyn
-print(df_weather)
+def get_weather_forecast(latitude, longitude, days):
+    url = (
+        "https://api.open-meteo.com/v1/forecast"
+        f"?latitude={latitude}"
+        f"&longitude={longitude}"
+        "&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,rain,snowfall"
+        "&timezone=Europe%2FWarsaw"
+    )
+
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        data = response.json()
+
+        # Dane godzinowe
+        hourly = data.get("hourly", {})
+        df_hourly = pd.DataFrame(hourly)
+
+        # Przekształcenie kolumny czasu
+        df_hourly["time"] = pd.to_datetime(df_hourly["time"])
+
+        # Odcięcie do n dni wprzód
+        df_limited = df_hourly.head(24 * days)
+
+        # Zmiana nazw kolumn
+        df_limited = df_limited.rename(columns={
+            "temperature_2m": "temperature [°C]",
+            "relative_humidity_2m": "humidity [%]",
+            "wind_speed_10m": "wind speed [km/h]",
+            "precipitation": "precipitation [mm]",
+            "rain": "rain [mm]",
+            "snowfall": "snowfall [cm]"
+        })
+
+        return df_limited
+
+    else:
+        raise Exception(f"Failed to fetch data: {response.status_code}")
+
+
+df_forecast = get_weather_forecast(52.2297, 21.0122, days=7)  # Warszawa, prognoza na 3 dni
+print(df_forecast)
