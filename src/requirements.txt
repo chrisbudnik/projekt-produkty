@@ -1,0 +1,7 @@
+requests
+pandas
+geopy
+timezonefinder
+folium
+PyQt5
+PyQtWebEngine
