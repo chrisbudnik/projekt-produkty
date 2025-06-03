@@ -7,6 +7,7 @@ from timezonefinder import TimezoneFinder
 
 import json
 
+import os
 import sys
 from pathlib import Path
 
@@ -220,25 +221,24 @@ def select_city():
 
     return bridge.miasto, bridge.wspolrzedne
 
-def config_set_city(path = 'config/config.json'):
-    city, cor = select_city()
 
-    config_data = pd.DataFrame([{'city_name': city,
-                                 'latitude': cor[0],
-                                 'longitude': cor[1]}])
+# Funkcja służąca do zapisania koordynatów do miasta w pliku konfiguracyjnym
+
+def config_set_city(config_path = 'config/config.json'):
+    if os.path.exists(config_path) == True:
+        config_data = pd.read_json(config_path)
+    
+    config_data = pd.read_json(config_path)
+
+    city, cor = select_city()
+    
+    config_data['city_name'] = city
+    config_data['latitude'] = cor[0]
+    config_data['longitude'] = cor[1]
     
 
-    config_path = Path(path)
-    config_path.parent.mkdir(parents=True, exist_ok=True)
+    #config_path = Path(config_path)
+    #config_path.parent.mkdir(parents=True, exist_ok=True)
     config_data.to_json(path_or_buf=config_path, force_ascii=False, indent=2)
-
-
-config_set_city()
-
-
-
-#df_forecast = get_weather_forecast(52.2297, 21.0122, days=7)  # Warszawa, prognoza na 3 dni
-#print(df_forecast)
-
-# = get_location_and_timezone("Wronki", "Poland")
-#print(location_info)
+    
+    return config_data[['city_name', 'latitude', 'longitude']]
