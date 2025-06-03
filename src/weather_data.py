@@ -317,27 +317,29 @@ def config_set_city(config_path = 'config/config.json'):
     if os.path.exists(config_path) == True:
         config_data = pd.read_json(config_path)
     
-    config_data = pd.read_json(config_path)
+    #config_data = pd.read_json(config_path)
 
     city, cor = select_city()
-    
-    config_data['city_name'] = city
-    config_data['latitude'] = cor[0]
-    config_data['longitude'] = cor[1]
-    
+
+    config_data = pd.DataFrame()
+    config_data.at[0, 'city_name'] = city
+    config_data.at[0, 'latitude'] = cor[0]
+    config_data.at[0, 'longitude'] = cor[1]
+        
 
     
     config_data.to_json(path_or_buf=config_path, force_ascii=False, indent=2)
     
     return config_data[['city_name', 'latitude', 'longitude']]
 
-def example():    
+def example():
     config_path = 'config/config.json'
 
     if os.path.exists(config_path) == True:
         config_data = pd.read_json(config_path)
+    else:
     
-    config_data = pd.read_json(config_path)
+        config_data = config_set_city()
 
     if config_data['latitude'].isna().any() or config_data['longitude'].isna().any():
         config_data = config_set_city()
