@@ -6,3 +6,14 @@ Uniwersytet im. Adama Mickiewicza W Poznaniu
 Autorzy:
 - Krzysztof Budnik
 - Bartosz Michnik
+
+
+## Uruchomienie aplikcaji
+
+środowisko lokalne:
+
+- `pip install uv`
+- `uv sync`
+- `uv tool --with plotly,mplfinance streamlit`
+- `uvx streamlit run src/app.py`
+
