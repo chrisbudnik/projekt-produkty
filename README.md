@@ -8,7 +8,7 @@ Autorzy:
 - Bartosz Michnik
 
 
-## Uruchomienie aplikcaji
+## Uruchomienie aplikacji
 
 środowisko lokalne:
 
