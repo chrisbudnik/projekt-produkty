@@ -67,7 +67,7 @@ def fetch_example_wig20_data(file_path: str, date_from: datetime = None, date_to
 
     if not date_from and not date_to:
         date_to = datetime.today()
-        date_from = date_to - timedelta(days=30)
+        date_from = date_to - timedelta(days=365)
 
     data = fetch_stock_data(date_from, date_to)
 
