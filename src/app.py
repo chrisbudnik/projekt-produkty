@@ -1,70 +1,23 @@
+from enum import Enum
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+from ui.stocks_data_page import stocks_data_page
 
 # --- Page config ---
 st.set_page_config(page_title="Weather + Stock AI APP", layout="wide")
-st.title("📈 Notowania spółek indeksu WIG20")
-
-# --- Load Data ---
-def load_data(path):
-    return pd.read_csv(path, parse_dates=["Date"])
-
-data = load_data("src/example_wig20_data.csv")
-
-# --- Top Controls ---
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    ticker = st.selectbox("Wybierz symbol:", data["Ticker"].unique())
-
-with col2:
-    min_date = data["Date"].min()
-    max_date = data["Date"].max()
-    start_date = st.date_input("Start Date", value=min_date, min_value=min_date, max_value=max_date)
-
-with col3:
-    end_date = st.date_input("End Date", value=max_date, min_value=min_date, max_value=max_date)
-
-# --- Validation ---
-if start_date > end_date:
-    st.error("🚫 Data początkowa zakresu musi być mniejsza od końcowej.")
-
-# --- Filter Data ---
-df = data[
-    (data["Ticker"] == ticker) &
-    (data["Date"] >= pd.to_datetime(start_date)) &
-    (data["Date"] <= pd.to_datetime(end_date))
-].sort_values("Date")
 
 
-# --- Two Columns: Chart & Table ---
-left, right = st.columns([3, 2])
+st.sidebar.title("📚 Menu")
 
-with left:
-    st.subheader("🕯️ Wykres Świecowy")
+page = st.sidebar.selectbox(
+    "Wybierz stronę:", ("📈 Notowania Spółek", "🌦️ Pogoda")
+    )
 
-    if df.empty:
-        st.warning("Brak danych dla wskazanego zakresu / symbolu.")
-    else:
-        fig = go.Figure(data=[
-            go.Candlestick(
-                x=df["Date"],
-                open=df["Open"],
-                high=df["High"],
-                low=df["Low"],
-                close=df["Close"],
-                name="Candlestick"
-            )
-        ])
-        fig.update_layout(
-            xaxis_title="Date",
-            yaxis_title="Price",
-            xaxis_rangeslider_visible=False,
-            height=500
-        )
-        st.plotly_chart(fig, use_container_width=True)
+# --- Page Routing ---
+if page == "📈 Notowania Spółek":
+    stocks_data_page()
 
-with right:
-    st.subheader("📋 Dane tabelaryczne")
-    st.dataframe(df.sort_values("Date", ascending=False), use_container_width=True)
+elif page == "🌦️ Pogoda":
+    st.title("🌦️ Pogoda")
+    st.info("in progress...")
