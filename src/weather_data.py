@@ -358,6 +358,3 @@ def example():
                               longitude = config_data['longitude'][0])
     
     print(df_forecast)
-
-
-example()
