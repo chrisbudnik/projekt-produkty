@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from ui.stocks_data_page import stocks_data_page
 from ui.weather_data_page import weather_forecast_page, zmień_miasto
-from ui.settings import settings_page
+from ui.settings_page import settings_page
 
 
 
@@ -17,7 +17,8 @@ st.sidebar.title("📚 Menu")
 
 page = st.sidebar.selectbox(
     "Wybierz stronę:", ("📈 Notowania Spółek", 
-                        "🌦️ Pogoda")
+                        "🌦️ Pogoda",
+                        "⚙️ Ustawienia")
     )
 
 # --- Page Routing ---
@@ -27,3 +28,5 @@ if page == "📈 Notowania Spółek":
 elif page == "🌦️ Pogoda":
     weather_forecast_page()
 
+elif page == "⚙️ Ustawienia":
+    settings_page()
