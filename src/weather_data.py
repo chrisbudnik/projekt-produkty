@@ -100,38 +100,22 @@ def get_weather(latitude, longitude, save_path='./temp/weather.csv'):
     if response.status_code == 200:
         data = response.json()
 
-        # Dane aktualne
-        current = data.get("current", {})
-        current_time = current.get("time")
-        code = current.get("weathercode")
-        df_current = pd.DataFrame([{
-            "time": current_time,
-            "temperature [°C]": current.get("temperature_2m"),
-            "humidity [%]": current.get("relative_humidity_2m"),
-            "wind speed [km/h]": current.get("wind_speed_10m"),
-            "precipitation [mm]": current.get("precipitation"),
-            "rain [mm]": current.get("rain"),
-            "snowfall [cm]": current.get("snowfall"),
-            "storm": "yes" if code in [95, 96, 99] else "no",
-            "weather description": WEATHER_CODES_EN.get(code, "Unknown"),
-            "opis pogody [PL]": WEATHER_CODES_PL.get(code, "Nieznany")
-        }])
-
         # Dane godzinowe
         hourly = data.get("hourly", {})
         df_hourly = pd.DataFrame(hourly)
         df_hourly["time"] = pd.to_datetime(df_hourly["time"])
 
-        # Najbliższe 24h od teraz
-        df_next_24h = df_hourly[df_hourly["time"] > pd.to_datetime(current_time)].head(24)
+        # Od teraz: 120 kolejnych godzin (5 dni)
+        now = pd.to_datetime(data.get("current", {}).get("time"))
+        df_next_5d = df_hourly[df_hourly["time"] > now].head(120)
 
         # Opisy i burza
-        df_next_24h["storm"] = df_next_24h["weathercode"].apply(lambda c: "yes" if c in [95, 96, 99] else "no")
-        df_next_24h["weather description"] = df_next_24h["weathercode"].map(WEATHER_CODES_EN)
-        df_next_24h["opis pogody [PL]"] = df_next_24h["weathercode"].map(WEATHER_CODES_PL)
+        df_next_5d["storm"] = df_next_5d["weathercode"].apply(lambda c: "yes" if c in [95, 96, 99] else "no")
+        df_next_5d["weather description"] = df_next_5d["weathercode"].map(WEATHER_CODES_EN)
+        df_next_5d["opis pogody [PL]"] = df_next_5d["weathercode"].map(WEATHER_CODES_PL)
 
         # Zmiana nazw kolumn
-        df_next_24h = df_next_24h.rename(columns={
+        df_next_5d = df_next_5d.rename(columns={
             "temperature_2m": "temperature [°C]",
             "relative_humidity_2m": "humidity [%]",
             "wind_speed_10m": "wind speed [km/h]",
@@ -140,12 +124,11 @@ def get_weather(latitude, longitude, save_path='./temp/weather.csv'):
             "snowfall": "snowfall [cm]"
         })
 
-        df_next_24h = df_next_24h.drop(columns=["weathercode"])
+        df_next_5d = df_next_5d.drop(columns=["weathercode"])
 
-        # Połączenie obu
-        df_result = pd.concat([df_current, df_next_24h], ignore_index=True)
-        df_result.to_csv(save_path, index=False)
-        return df_result
+        # Zapis i zwrot
+        df_next_5d.to_csv(save_path, index=False)
+        return df_next_5d
 
     else:
         raise Exception(f"Failed to fetch data: {response.status_code}")

@@ -6,6 +6,7 @@ from geopy.exc import GeocoderTimedOut, GeocoderUnavailable
 
 import pandas as pd
 
+from weather_data import get_weather_forecast
 
 def reverse_geocode(lat, lon):
     geolocator = Nominatim(user_agent="weather_app")
@@ -57,9 +58,9 @@ def settings_page():
         if st.button("✅ Wybierz lokalizację"):
 
             try:
-                config_data[['city_name', 'latitude','longitude']] = city_name, lat, lon
-                config_data.to_json(config_path)
-
+                config_data[['city_name', 'latitude','longitude']] = [city_name, lat, lon]
+                config_data.to_json(config_path, orient='records', indent=4)
+                get_weather_forecast(config_data['latitude'].loc[0], config_data['longitude'].loc[0], days=5, interval_hours=1)
                 st.success(f"✅ Lokalizacja została wybrana: **{city_name}**")
             
             except:

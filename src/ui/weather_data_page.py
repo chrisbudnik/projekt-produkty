@@ -5,23 +5,34 @@ from PIL import Image
 import os
 
 from geopy.geocoders import Nominatim
-
 from pathlib import Path
-from geopy.geocoders import Nominatim
 from streamlit_folium import st_folium
 import folium
 
 import locale
-from datetime import datetime
+from datetime import datetime, timezone
 
-from weather_data import select_city
+from weather_data import select_city, get_weather, get_weather_forecast
 
 
+def load_weather_data(path='temp/weather_forecast.csv'):
+    config_path = 'config/config.json'
+    config_data = pd.read_json(config_path)
+    timestamp_utc = datetime.now(timezone.utc).timestamp()
 
-def load_weather_data(path = 'temp/weather.csv'):
+    if (pd.isna(config_data.loc[0, "last_weather_request"])) or (timestamp_utc - config_data['last_weather_request'].loc[0] > 10 * 60):
+        config_data['last_weather_request'] = timestamp_utc
+        config_data.to_json(config_path, orient='records', indent=4)
+
+        get_weather_forecast(config_data['latitude'].loc[0], config_data['longitude'].loc[0], days=5, interval_hours=1)
+
     data = pd.read_csv(path)
 
+    if 'time' in data.columns:
+        data['time'] = pd.to_datetime(data['time'], errors='coerce')
+
     return data
+
 
 def zmień_miasto(config_path='config/config.json'):
     st.header("🔄 Zmień miasto")
@@ -44,7 +55,6 @@ def zmień_miasto(config_path='config/config.json'):
             loc = location_list[0]
             st.success(f"Znaleziono: {loc.address}")
 
-            # Zapisz do config
             new_config = {"city_name": [loc.raw['address'].get('city', loc.raw['address'].get('town', wpisane))]}
             with open(config_path, "w", encoding="utf-8") as f:
                 import json
@@ -77,57 +87,77 @@ def zmień_miasto(config_path='config/config.json'):
                 st.session_state["view"] = "prognoza"
                 st.rerun()
 
+
 def weather_forecast_page():
     """
-    Strona z 5-dniową prognozą pogody na godzinę 12:00.
-    Dane łączone są z pliku CSV i opcjonalnie z API.
-    Wizualizacja obejmuje wykres oraz pogodową grafikę.
+    Strona z prognozą pogody – wszystkie godziny.
+    Wykres obejmuje pełne dane, sekcja ikon tylko godz. 12:00.
     """
 
-    # Wczytaj dane z pliku CSV
+    # --- Locale PL ---
+    try:
+        locale.setlocale(locale.LC_TIME, "pl_PL.UTF-8")
+    except locale.Error:
+        st.warning("⚠️ Nie udało się ustawić języka polskiego dla dat. Sprawdź ustawienia systemu.")
+
     csv_data = pd.read_csv("temp/weather_forecast.csv")
     csv_data["time"] = pd.to_datetime(csv_data["time"], errors="coerce")
 
     config_data = pd.read_json("config/config.json")
     city_name = config_data['city_name'][0]
 
+    live_data = load_weather_data()
+    live_data["time"] = pd.to_datetime(live_data["time"], errors="coerce")
+    data = pd.concat([csv_data, live_data], ignore_index=True)
 
-
-    if st.session_state.get("view") == "zmiana_miasta":
-        zmień_miasto()
-
-    # Opcjonalne dołączenie danych z API
-    try:
-        live_data = load_weather_data()
-        live_data["time"] = pd.to_datetime(live_data["time"], errors="coerce")
-        data = pd.concat([csv_data, live_data], ignore_index=True)
-    except:
-        data = csv_data
-
-    # Filtrowanie danych z godziny 12:00
-    data = data[data["time"].dt.hour == 12]
-    data = data.sort_values("time").head(5)
+    data = data.sort_values("time")
 
     st.title(f"🌤️ Prognoza Pogody - {city_name}")
 
-    # --- Trzy kolumny ---
     left, right = st.columns([4, 2])
 
     with left:
-        # 🔘 Przełącznik: wybór typu wykresu
         chart_type = st.radio("Wybierz dane do wyświetlenia:", ["Temperatura", "Wiatr"], horizontal=True)
 
-        if data.empty:
+
+        # Zakładamy, że masz `data` z kolumną datetime 'time'
+        data["date_only"] = data["time"].dt.date
+        unique_days = sorted(data["date_only"].unique())[:5]
+
+        # Polskie skróty dni tygodnia (0 = poniedziałek)
+        dni_tygodnia = {
+            0: "Poniedziałek", 1: "Wtorek", 2: "Środa", 3: "Czwartek", 4: "Piątek", 5: "Sobota", 6: "Niedziela"
+        }
+
+        # Generowanie etykiet do radia np. "Pn, 16.06"
+        day_labels = [
+            f"{dni_tygodnia[pd.to_datetime(date).weekday()]}, {pd.to_datetime(date).strftime('%d.%m')}"
+            for date in unique_days
+        ]
+
+        # Mapa: label → date
+        day_map = dict(zip(day_labels, unique_days))
+
+        # Wyświetlenie radia w poziomie
+        selected_day_label = st.radio("📆 Wybierz dzień:", day_labels, horizontal=True)
+        selected_day = day_map[selected_day_label]
+
+
+
+
+        filtered_data = data[data["date_only"] == selected_day]
+
+        if filtered_data.empty:
             st.warning("🚫 Brak danych pogodowych do wyświetlenia.")
         else:
             fig = go.Figure()
-            x_vals = data["time"].dt.strftime("%Y-%m-%d")
+            x_vals = filtered_data["time"].dt.strftime("%H:%M")
 
             if chart_type == "Temperatura":
                 fig.add_trace(go.Scatter(
                     x=x_vals,
-                    y=data["temperature [°C]"],
-                    mode="lines+markers",
+                    y=filtered_data["temperature [°C]"],
+                    mode="lines",
                     name="Temperatura [°C]",
                     line=dict(shape="spline")
                 ))
@@ -135,15 +165,15 @@ def weather_forecast_page():
             else:
                 fig.add_trace(go.Scatter(
                     x=x_vals,
-                    y=data["wind speed [km/h]"],
-                    mode="lines+markers",
+                    y=filtered_data["wind speed [km/h]"],
+                    mode="lines",
                     name="Wiatr [km/h]",
                     line=dict(shape="spline", dash="dot")
                 ))
                 fig.update_layout(yaxis_title="Wiatr [km/h]")
 
             fig.update_layout(
-                xaxis_title="Data",
+                xaxis_title="Godzina",
                 height=500,
                 margin=dict(t=30, b=30)
             )
@@ -151,45 +181,47 @@ def weather_forecast_page():
             st.plotly_chart(fig, use_container_width=True)
 
     with right:
-            st.subheader("📅 Prognoza na 5 dni")
+        st.subheader("📅 Prognoza na 5 dni")
+
+        icon_map = {
+            "bezchmurne": "sunny.png",
+            "słonecz": "sunny.png",
+            "pochmurno": "clouds.png",
+            "zachmurzenie": "clouds.png",
+            "przeważnie": "sunny.png",
+            "deszcz": "rainy.png",
+            "opady": "rainy.png",
+            "śnieg": "snowy.png",
+            "burza": "storm.png"
+        }
 
 
-            icon_map = {
-                "bezchmurne": "sunny.png",
-                "słonecz": "sunny.png",
-                "pochmurno": "clouds.png",
-                "zachmurzenie": "clouds.png",
-                "przeważnie": "sunny.png",
-                "deszcz": "rainy.png",
-                "opady": "rainy.png",
-                "śnieg": "snowy.png",
-                "burza": "storm.png"
-            }
 
-            for _, row in data.iterrows():
-                            # Ustawienie lokalizacji na polską
-                locale.setlocale(locale.LC_TIME, "pl_PL.UTF-8")
+        # Dane z południa każdego dnia (godz. 12:00)
+        midday_data = data[data["time"].dt.hour == 12].sort_values("time").head(5)
 
-                # Formatowanie daty z polskim dniem tygodnia
-                date_str = row["time"].strftime("%A, %d.%m")
+        for _, row in midday_data.iterrows():
+            weekday = row["time"].weekday()
+            date_str = f"{dni_tygodnia[weekday]}, {row['time'].strftime('%d.%m')}"
+            temp = int(round(row["temperature [°C]"]))
+            opis = row["opis pogody [PL]"].lower()
 
+            # Dobranie ikony
+            icon_file = "sunny.png"
+            for key, filename in icon_map.items():
+                if key in opis:
+                    icon_file = filename
+                    break
 
-                temp = int(round(row["temperature [°C]"]))
-                opis = row["opis pogody [PL]"].lower()
+            img_path = os.path.join("img", icon_file)
 
-                # Dopasowanie ikony
-                icon_file = "sunny.png"
-                for key, filename in icon_map.items():
-                    if key in opis:
-                        icon_file = filename
-                        break
-
-                img_path = os.path.join("img", icon_file)
-
-                col1, col2 = st.columns([1, 10])
-                with col1:
-                    st.image(img_path, width=60)
-                with col2:
-                    st.markdown(f"**{date_str}**  \n{row['opis pogody [PL]']}  \n🌡️ {temp}°C") 
-
-#weather_forecast_page()
+            # Wyświetlenie: ikona + opis
+            col1, col2 = st.columns([1, 10])
+            with col1:
+                st.image(img_path, width=60)
+            with col2:
+                st.markdown(
+                    f"**{date_str}**  \n"
+                    f"{row['opis pogody [PL]']}  \n"
+                    f"🌡️ {temp}°C"
+                )
