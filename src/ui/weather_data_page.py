@@ -14,6 +14,34 @@ from datetime import datetime, timezone
 
 from weather_data import select_city, get_weather, get_weather_forecast
 
+from llm.responses import get_llm_response
+from llm.prompts import WEATHER_LIFESTYLE_ASSISTANT
+
+
+
+def expert_chat_component(location: str, weather_data: str):
+    """
+    A simple chat input component for user interaction.
+    This function allows users to input text and displays the input back to them.
+    """
+    st.subheader("💬 Chat with Expert")
+    
+    prompt = st.chat_input("Say something")
+    if prompt:
+        st.write(f"Pytanie do eksperta: {prompt}")
+        
+        full_prompt = WEATHER_LIFESTYLE_ASSISTANT.format(
+            location=location, 
+            prompt=prompt, 
+            weather_data=weather_data
+        )
+
+        with st.spinner("Ekspert analizuje dane..."):
+            response = get_llm_response(full_prompt)
+
+        st.success("Odpowiedź eksperta:")
+        st.write(response)
+
 
 def load_weather_data(path='temp/weather_forecast.csv'):
     config_path = 'config/config.json'
@@ -239,3 +267,6 @@ def weather_forecast_page():
                     f"{row['opis pogody [PL]']}  \n"
                     f"🌡️ {temp}°C"
                 )
+    
+    expert_chat_component(location=city_name,
+                          weather_data=data.to_csv(index=False))
