@@ -13,12 +13,7 @@ WORKDIR /
 COPY . ./
 RUN uv sync
 
-# Add uv virtualenv to PATH so streamlit is found
-#ENV PATH="/.venv/bin:$PATH"
 
-# Copy the rest of the project
-
-# Expose Streamlit port
 EXPOSE 8501
 
 # Run the app inside the container
