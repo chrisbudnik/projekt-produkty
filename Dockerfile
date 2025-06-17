@@ -3,6 +3,7 @@ FROM python:3.13-slim
 # For debugging
 ENV PYTHONUNBUFFERED=True
 
+# install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # set-up for PyQt5 map widget
@@ -42,14 +43,16 @@ RUN apt-get update && apt-get install -y \
     libasound2 \
     && rm -rf /var/lib/apt/lists/*
 
-
+# adjust path
 WORKDIR /app
 ENV UV_VENV_PATH=/app/.venv
 ENV PATH="/app/.venv/bin:$PATH"
 
+# install modules
 COPY . ./
 RUN uv sync
 
 EXPOSE 8501
 
+# run app
 CMD ["streamlit", "run", "src/app.py", "--server.port", "8051", "--server.address", "0.0.0.0"]
