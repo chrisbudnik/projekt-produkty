@@ -20,11 +20,20 @@ def load_weather_data(path='temp/weather_forecast.csv'):
     config_data = pd.read_json(config_path)
     timestamp_utc = datetime.now(timezone.utc).timestamp()
 
-    if (pd.isna(config_data.loc[0, "last_weather_request"])) or (timestamp_utc - config_data['last_weather_request'].loc[0] > 10 * 60):
+    file_missing = not os.path.exists(path)
+    outdated = pd.isna(config_data.loc[0, "last_weather_request"]) or \
+               (timestamp_utc - config_data['last_weather_request'].loc[0] > 10 * 60)
+
+    if file_missing or outdated:
         config_data['last_weather_request'] = timestamp_utc
         config_data.to_json(config_path, orient='records', indent=4)
 
-        get_weather_forecast(config_data['latitude'].loc[0], config_data['longitude'].loc[0], days=5, interval_hours=1)
+        get_weather_forecast(
+            config_data['latitude'].loc[0],
+            config_data['longitude'].loc[0],
+            days=5,
+            interval_hours=1
+        )
 
     data = pd.read_csv(path)
 
@@ -100,7 +109,12 @@ def weather_forecast_page():
     except locale.Error:
         st.warning("⚠️ Nie udało się ustawić języka polskiego dla dat. Sprawdź ustawienia systemu.")
 
-    csv_data = pd.read_csv("temp/weather_forecast.csv")
+    if os.path.exists("temp/weather_forecast.csv"):
+        csv_data = pd.read_csv("temp/weather_forecast.csv")
+    else:
+        load_weather_data()
+        csv_data = pd.read_csv("temp/weather_forecast.csv")
+
     csv_data["time"] = pd.to_datetime(csv_data["time"], errors="coerce")
 
     config_data = pd.read_json("config/config.json")
