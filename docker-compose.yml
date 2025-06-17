@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  streamlit-app:
+    build: .
+    container_name: streamlit_app
+    platform: linux/amd64
+    ports:
+      - "8051:8051"
+    environment:
+      - PYTHONUNBUFFERED=True
+      - UV_VENV_PATH=/app/.venv
+      - PATH=/app/.venv/bin:$PATH
+    restart: unless-stopped
