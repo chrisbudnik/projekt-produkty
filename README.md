@@ -1,6 +1,6 @@
 # Pogoda + Giełda AI
 
-Projekt zaliczeniowy z przedmiotu: `Tworzenie produktów opartych o dane` 
+Projekt zaliczeniowy z przedmiotu: `Tworzenie produktów opartych o dane` <br>
 Uniwersytet im. Adama Mickiewicza W Poznaniu
 
 Autorzy:
