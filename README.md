@@ -10,6 +10,14 @@ Autorzy:
 
 ## Uruchomienie aplikacji
 
+Konfiguracja środowiska - nalezy utworzyć plik `src/.env`, który będzie zawierać:
+
+```bash
+OPENAI_API_KEY=xxx
+OPENAI_ORG_ID=org-xxx
+OPENAI_PROJECT_ID=xxx
+```
+
 środowisko lokalne:
 
 - `pip install uv`
