@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock
-from src.llm.responses import get_llm_response
+from llm.responses import get_llm_response
 
 
 def test_get_llm_response():
@@ -14,4 +14,4 @@ def test_get_llm_response():
     prompt = "Say 'its a test'"
     result = get_llm_response(mock_client, prompt)
 
-    assert result == "test"
+    assert result == "its a test"
