@@ -16,6 +16,7 @@ dependencies = [
     "plotly>=6.1.2",
     "pyqt5>=5.15.11",
     "pyqtwebengine>=5.15.7",
+    "pytest>=8.4.0",
     "requests>=2.32.3",
     "streamlit>=1.45.1",
     "streamlit-folium>=0.25.0",
@@ -37,6 +38,7 @@ projekt-produkty = { workspace = true }
 [dependency-groups]
 dev = [
     "projekt-produkty",
+    "pytest>=8.4.0",
 ]
 
 

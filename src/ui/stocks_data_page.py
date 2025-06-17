@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
+from openai import OpenAI
 
 from llm.responses import get_llm_response
 from llm.prompts import STOCK_EXPERT_ANALYST
@@ -10,6 +11,18 @@ from llm.prompts import STOCK_EXPERT_ANALYST
 # --- Load Data ---
 def load_data(path):
     return pd.read_csv(path, parse_dates=["Date"])
+
+
+def filter_data(df, ticker, start_date, end_date):
+    """
+    Filter the DataFrame based on the selected ticker and date range.
+    """
+    return df[
+        (df["Ticker"] == ticker) &
+        (df["Date"] >= pd.to_datetime(start_date)) &
+        (df["Date"] <= pd.to_datetime(end_date))
+    ].sort_values("Date")
+
 
 def expert_chat_component(company: str, date_from: str, date_to: str, data: str):
     """
@@ -31,7 +44,8 @@ def expert_chat_component(company: str, date_from: str, date_to: str, data: str)
         )
 
         with st.spinner("Ekspert analizuje dane..."):
-            response = get_llm_response(full_prompt)
+            client = OpenAI()
+            response = get_llm_response(client, full_prompt)
 
         st.success("Odpowiedź eksperta:")
         st.write(response)
@@ -75,12 +89,7 @@ def stocks_data_page():
         )
 
     # --- Filter Data ---
-    df = data[
-        (data["Ticker"] == ticker) &
-        (data["Date"] >= pd.to_datetime(start_date)) &
-        (data["Date"] <= pd.to_datetime(end_date))
-    ].sort_values("Date")
-
+    df = filter_data(data, ticker, start_date, end_date)
 
     # --- Two Columns: Chart & Table ---
     left, right = st.columns([3, 2])
