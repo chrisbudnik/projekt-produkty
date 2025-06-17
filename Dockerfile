@@ -6,7 +6,6 @@ ENV PYTHONUNBUFFERED=True
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # set-up for PyQt5 map widget
-from PyQt5.QtCore
 RUN apt-get update && apt-get install -y \
     build-essential \
     libgl1 \
