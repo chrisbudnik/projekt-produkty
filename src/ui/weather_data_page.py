@@ -3,6 +3,7 @@ import pandas as pd
 import plotly.graph_objects as go
 from PIL import Image
 import os
+from openai import OpenAI
 
 from geopy.geocoders import Nominatim
 from pathlib import Path
@@ -37,7 +38,8 @@ def expert_chat_component(location: str, weather_data: str):
         )
 
         with st.spinner("Ekspert analizuje dane..."):
-            response = get_llm_response(full_prompt)
+            client = OpenAI()
+            response = get_llm_response(client, full_prompt)
 
         st.success("Odpowiedź eksperta:")
         st.write(response)
