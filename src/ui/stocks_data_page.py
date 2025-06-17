@@ -2,12 +2,39 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 
+from llm.responses import get_llm_response
+from llm.prompts import STOCK_EXPERT_ANALYST
 
 
 
 # --- Load Data ---
 def load_data(path):
     return pd.read_csv(path, parse_dates=["Date"])
+
+def expert_chat_component(company: str, date_from: str, date_to: str, data: str):
+    """
+    A simple chat input component for user interaction.
+    This function allows users to input text and displays the input back to them.
+    """
+    st.subheader("💬 Chat with Expert")
+    
+    prompt = st.chat_input("Say something")
+    if prompt:
+        st.write(f"Pytanie do eksperta: {prompt}")
+        
+        full_prompt = STOCK_EXPERT_ANALYST.format(
+            company=company, 
+            prompt=prompt, 
+            date_from=date_from, 
+            date_to=date_to, 
+            data=data
+        )
+
+        with st.spinner("Ekspert analizuje dane..."):
+            response = get_llm_response(full_prompt)
+
+        st.success("Odpowiedź eksperta:")
+        st.write(response)
 
 
 def stocks_data_page():
@@ -27,16 +54,25 @@ def stocks_data_page():
         ticker = st.selectbox("Wybierz symbol:", data["Ticker"].unique())
 
     with col2:
-        min_date = data["Date"].min()
-        max_date = data["Date"].max()
-        start_date = st.date_input("Start Date", value=min_date, min_value=min_date, max_value=max_date)
+        min_date = data["Date"].min().date()
+        max_date = data["Date"].max().date()
+        start_date = st.date_input("Start Date", value=min_date, )
 
     with col3:
-        end_date = st.date_input("End Date", value=max_date, min_value=min_date, max_value=max_date)
+        end_date = st.date_input("End Date", value=max_date, )
+
 
     # --- Validation ---
     if start_date > end_date:
-        st.error("🚫 Data początkowa zakresu musi być mniejsza od końcowej.")
+        st.error(
+            "🚫 Data początkowa zakresu musi być mniejsza od końcowej."
+        )
+
+    if start_date < min_date or end_date > max_date:
+        st.error(
+            f"🚫 Zakres dat musi być pomiędzy {min_date.strftime('%Y-%m-%d')}"
+            f" a {max_date.strftime('%Y-%m-%d')}."
+        )
 
     # --- Filter Data ---
     df = data[
@@ -76,3 +112,12 @@ def stocks_data_page():
     with right:
         st.subheader("📋 Dane tabelaryczne")
         st.dataframe(df.sort_values("Date", ascending=False), use_container_width=True)
+
+    expert_chat_component(
+        company=ticker,
+        date_from=start_date.strftime("%Y-%m-%d"),
+        date_to=end_date.strftime("%Y-%m-%d"),
+        data=df.to_json(orient="records")
+    )
+
+
