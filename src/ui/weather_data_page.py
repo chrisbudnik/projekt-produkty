@@ -1,19 +1,15 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-from PIL import Image
 import os
 from openai import OpenAI
 
 from geopy.geocoders import Nominatim
-from pathlib import Path
-from streamlit_folium import st_folium
-import folium
 
 import locale
 from datetime import datetime, timezone
 
-from weather_data import select_city, get_weather, get_weather_forecast
+from weather_data import get_weather_forecast
 
 from llm.responses import get_llm_response
 from llm.prompts import WEATHER_LIFESTYLE_ASSISTANT

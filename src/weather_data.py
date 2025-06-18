@@ -1,11 +1,9 @@
 import requests
 import pandas as pd
-from datetime import datetime
 
 from geopy.geocoders import Nominatim
 from timezonefinder import TimezoneFinder
 
-import json
 
 import os
 import sys
@@ -14,11 +12,7 @@ from pathlib import Path
 import folium
 from PyQt5 import QtWidgets, QtCore, QtGui, QtWebEngineWidgets, QtWebChannel
 from PyQt5.QtCore import QObject, pyqtSlot, QUrl
-from geopy.geocoders import Nominatim
 
-import pandas as pd
-import requests
-from pathlib import Path
 
 # Mapowanie kodów pogodowych
 WEATHER_CODES_EN = {
@@ -297,7 +291,7 @@ def config_set_city(config_path = 'config/config.json'):
     config_path = Path(config_path)
     config_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if os.path.exists(config_path) == True:
+    if os.path.exists(config_path):
         config_data = pd.read_json(config_path)
     
     #config_data = pd.read_json(config_path)
@@ -318,7 +312,7 @@ def config_set_city(config_path = 'config/config.json'):
 def example():
     config_path = 'config/config.json'
 
-    if os.path.exists(config_path) == True:
+    if os.path.exists(config_path):
         config_data = pd.read_json(config_path)
     else:
     

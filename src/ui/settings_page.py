@@ -63,7 +63,7 @@ def settings_page():
                 get_weather_forecast(config_data['latitude'].loc[0], config_data['longitude'].loc[0], days=5, interval_hours=1)
                 st.success(f"✅ Lokalizacja została wybrana: **{city_name}**")
             
-            except:
+            except Exception:
                 st.error("❌ Nie udało się zapisać lokalizacji. Spróbuj ponownie.")
 
             
