@@ -39,6 +39,7 @@ projekt-produkty = { workspace = true }
 dev = [
     "projekt-produkty",
     "pytest>=8.4.0",
+    "ruff>=0.12.0",
 ]
 
 
