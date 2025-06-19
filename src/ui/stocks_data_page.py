@@ -185,7 +185,7 @@ def stocks_data_page():
     with col2:
         default_start_date = date(2025, 4, 1)
         default_end_date = date(2025, 4, 30)
-        limit_start_date = date(2025, 1, 1)
+        limit_start_date = date(2024, 1, 1)
 
         start_date = st.date_input(
             "Start Date", 
