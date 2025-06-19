@@ -28,18 +28,29 @@ WIG20_TICKERS = [
 ]
 
 
-def process_stock_data(ticker: str, data: pd.DataFrame) -> pd.DataFrame:
+def process_stock_data(
+        ticker: str, 
+        data: pd.DataFrame
+    ) -> pd.DataFrame:
     """Transform raw stock data from yfinance into a structured DataFrame."""
 
     df = data.copy()
     df.columns = df.columns.get_level_values(0) 
     df.reset_index(inplace=True)  
     df['Ticker'] = ticker 
+    
+    if 'Datetime' in df.columns:
+        df.rename(columns={'Datetime': 'Date'}, inplace=True)
 
     return df[['Ticker', 'Date', 'Close', 'High', 'Low', 'Open', 'Volume']]
 
 
-def fetch_stock_data(date_from: datetime, date_to: datetime, tickers: List[str] = None) -> pd.DataFrame:
+def fetch_stock_data(
+        date_from: datetime, 
+        date_to: datetime, 
+        tickers: List[str] = None,
+        interval: str = '1d'
+    ) -> pd.DataFrame:
     """Fetch stock data for multiple tickers and return a combined DataFrame."""
 
     if not tickers:
@@ -51,7 +62,8 @@ def fetch_stock_data(date_from: datetime, date_to: datetime, tickers: List[str] 
             data = yf.download(
                 ticker, 
                 start=date_from.strftime('%Y-%m-%d'), 
-                end=date_to.strftime('%Y-%m-%d')
+                end=date_to.strftime('%Y-%m-%d'),
+                interval=interval
             )
             processed_data = process_stock_data(ticker, data)
             all_data.append(processed_data)
@@ -62,14 +74,19 @@ def fetch_stock_data(date_from: datetime, date_to: datetime, tickers: List[str] 
     return pd.concat(all_data, ignore_index=True)
 
 
-def fetch_example_wig20_data(file_path: str, date_from: datetime = None, date_to: datetime = None) -> pd.DataFrame:
+def fetch_example_wig20_data(
+        file_path: str, 
+        date_from: datetime = None, 
+        date_to: datetime = None,
+        interval: str = '1d'
+    ) -> pd.DataFrame:
     """Fetch example WIG20 stock data for the last 30 days."""
 
     if not date_from and not date_to:
         date_to = datetime.today()
         date_from = date_to - timedelta(days=365)
 
-    data = fetch_stock_data(date_from, date_to)
+    data = fetch_stock_data(date_from, date_to, interval=interval)
 
     with open(file_path, 'w') as f:
         data.to_csv(f, index=False)

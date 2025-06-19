@@ -3,10 +3,10 @@ from streamlit_folium import st_folium
 import folium
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut, GeocoderUnavailable
-
 import pandas as pd
 
 from weather_data import get_weather_forecast
+
 
 def reverse_geocode(lat, lon):
     geolocator = Nominatim(user_agent="weather_app")
@@ -19,6 +19,19 @@ def reverse_geocode(lat, lon):
         return "Nieznana lokalizacja"
     except (GeocoderTimedOut, GeocoderUnavailable):
         return "Błąd geokodowania"
+    
+
+def setup_openai_api_key():
+    """
+    Set up OpenAI API key input in the sidebar.
+    """
+
+    st.subheader("Ustawienia AI")
+    api_key_input = st.text_input("Wprowadź klucz OpenAI API", type="password")
+    if api_key_input:
+        st.session_state.openai_api_key = api_key_input
+        st.success("Klucz API zapisany!")
+
 
 def settings_page():
     config_path = 'config/config.json'
@@ -28,6 +41,8 @@ def settings_page():
     #loc = [config_data['latitude'][0], config_data['longitude'][0]] 
 
     st.title("⚙️ Ustawienia")
+    setup_openai_api_key()
+
     st.subheader("🗺️ Wybierz lokalizację")
     st.subheader("    Aktualna lokalizacja: " + str(config_data['city_name'][0]))
 
