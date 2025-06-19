@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List
 import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
