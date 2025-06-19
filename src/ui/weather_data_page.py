@@ -6,7 +6,6 @@ from openai import OpenAI
 
 from geopy.geocoders import Nominatim
 
-import locale
 from datetime import datetime, timezone
 
 from weather_data import get_weather_forecast
@@ -138,12 +137,6 @@ def weather_forecast_page():
     Strona z prognozą pogody – wszystkie godziny.
     Wykres obejmuje pełne dane, sekcja ikon tylko godz. 12:00.
     """
-
-    # --- Locale PL ---
-    try:
-        locale.setlocale(locale.LC_TIME, "pl_PL.UTF-8")
-    except locale.Error:
-        st.warning("⚠️ Nie udało się ustawić języka polskiego dla dat. Sprawdź ustawienia systemu.")
 
     if os.path.exists("temp/weather_forecast.csv"):
         csv_data = pd.read_csv("temp/weather_forecast.csv")
