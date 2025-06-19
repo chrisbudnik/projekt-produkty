@@ -61,7 +61,6 @@ def expert_chat_component(
     A simple chat input component for user interaction.
     This function allows users to input text and displays the input back to them.
     """
-    st.subheader("💬 Chat with Expert")
     
     prompt = st.chat_input("Say something")
     if prompt:
@@ -238,11 +237,18 @@ def stocks_data_page():
         st.subheader("📋 Dane tabelaryczne")
         st.dataframe(df.sort_values("Date", ascending=False), use_container_width=True)
 
-    expert_chat_component(
-        company=ticker,
-        date_from=start_date.strftime("%Y-%m-%d"),
-        date_to=end_date.strftime("%Y-%m-%d"),
-        data=df.to_json(orient="records")
-    )
+    
+    st.subheader("💬 Chat with Expert")
+    if timeframe == "Hourly":
+        st.warning(
+            "⚠️ Uwaga: Ekspert AI pracuje tylko na danych dziennych."
+        )
+    else:
+        expert_chat_component(
+            company=ticker,
+            date_from=start_date.strftime("%Y-%m-%d"),
+            date_to=end_date.strftime("%Y-%m-%d"),
+            data=df.to_json(orient="records")
+        )
 
 
