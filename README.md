@@ -23,6 +23,10 @@ Wersja oparta o Docker:
 - `make build` + `make run-docker` lub,
 - `make compose`
 
+Aplikacja będzie dostępna pod adresem:
+- `http://localhost:8501` (lokalne uruchomienie)
+- `http://0.0.0.0:8051` (docker)
+
 ## Funkcje AI
 Aplikacja pozwala na wykorzystanie modeli językowych (LLM) do analizy danych i tworzenia uproszczonych rekomendacji.
 W karcie `Ustawienia` (nawigacja za pomocą paska bocznego), należy przekopiować w odpowiednie pole klucz API, a
