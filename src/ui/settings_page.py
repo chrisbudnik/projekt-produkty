@@ -49,7 +49,7 @@ def settings_page():
         lat = map_data["last_clicked"]["lat"]
         lon = map_data["last_clicked"]["lng"]
         loc = [lat, lon] 
-        m.add_child(folium.Marker(location=loc, popup="Tu jestaaaaem").add_to(m))
+        m.add_child(folium.Marker(location=loc, popup="Tu jestem").add_to(m))
 
         city_name = reverse_geocode(lat, lon)
 
