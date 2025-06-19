@@ -10,3 +10,6 @@ temp/
 # Virtual environments
 .venv
 .env
+
+# test jupyter notebooks
+*.ipynb

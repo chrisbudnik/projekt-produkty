@@ -22,6 +22,16 @@ def expert_chat_component(location: str, weather_data: str):
     This function allows users to input text and displays the input back to them.
     """
     st.subheader("💬 Chat with Expert")
+
+    try:
+        api_key = st.session_state.openai_api_key
+        
+    except AttributeError:
+        st.warning(
+            "🚫 Proszę wprowadzić klucz API OpenAI w ustawieniach, " \
+            "aby korzystać z funkcji generatywnej sztucznej inteligencji."
+        )
+        st.stop()
     
     prompt = st.chat_input("Say something")
     if prompt:
@@ -34,7 +44,7 @@ def expert_chat_component(location: str, weather_data: str):
         )
 
         with st.spinner("Ekspert analizuje dane..."):
-            client = OpenAI()
+            client = OpenAI(api_key=api_key)
             response = get_llm_response(client, full_prompt)
 
         st.success("Odpowiedź eksperta:")
