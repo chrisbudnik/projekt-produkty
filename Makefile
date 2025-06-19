@@ -19,7 +19,14 @@ run:
 
 clean:
 	rm -rf src/__pycache__/
+	rm -rf src/ui/__pycache__/
 	rm -rf tests/__pycache__/
 	rm -rf src/.pytest_cache/
+	rm -rf src/projekt_produkty.egg-info/
+	rm -rf temp/
+	rm -rf config/
+	rm -rf .pytest_cache/
+	rm -rf .ruff_cache/
+	rm -rf .venv/
 
 
