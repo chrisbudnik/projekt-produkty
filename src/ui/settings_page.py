@@ -27,10 +27,10 @@ def setup_openai_api_key():
     """
 
     st.subheader("Ustawienia AI")
-    api_key_input = st.text_input("Enter your OpenAI API key", type="password")
+    api_key_input = st.text_input("Wprowadź klucz OpenAI API", type="password")
     if api_key_input:
         st.session_state.openai_api_key = api_key_input
-        st.success("API key saved!")
+        st.success("Klucz API zapisany!")
 
 
 def settings_page():
