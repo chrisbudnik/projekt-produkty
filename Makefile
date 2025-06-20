@@ -14,8 +14,9 @@ compose:
 run-docker:
 	docker run -p 8051:8051 weather-stocks-app 
 
-run:
-	uv sync | uv run streamlit run src/app.py 
+run:	
+	set UV_LINK_MODE=copy && uv run streamlit run src/app.py
+
 
 clean:
 	rm -rf src/__pycache__/
