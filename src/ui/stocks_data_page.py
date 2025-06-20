@@ -62,7 +62,7 @@ def expert_chat_component(
     A simple chat input component for user interaction.
     This function allows users to input text and displays the input back to them.
     """
-    st.subheader("💬 Chat with Expert")
+    st.subheader("💬 Chat z Ekspertem AI")
 
     try:
         api_key = st.session_state.openai_api_key
@@ -80,7 +80,7 @@ def expert_chat_component(
         )
         st.stop()
 
-    prompt = st.chat_input("Say something")
+    prompt = st.chat_input("Zadaj pytanie ekspertowi")
     if prompt:
         st.write(f"Pytanie do eksperta: {prompt}")
         
