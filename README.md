@@ -14,7 +14,7 @@ Warto upewnić się, że został zainstalowany w systemie.
 
 Uruchomienie aplikacji lokalnie:
 - `uv sync`
-- `streamlit run src/app.py`
+- `uv run streamlit run src/app.py`
 
 lub:
 - `make run`
