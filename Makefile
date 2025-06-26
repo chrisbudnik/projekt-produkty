@@ -12,9 +12,9 @@ compose:
 
 
 run-docker:
-	docker run -p 8051:8051 weather-stocks-app 
+	docker run -p 8051:8051 weather-stocks-app
 
-run:	
+run:
 	set UV_LINK_MODE=copy && uv run streamlit run src/app.py
 
 
@@ -29,5 +29,4 @@ clean:
 	rm -rf .pytest_cache/
 	rm -rf .ruff_cache/
 	rm -rf .venv/
-
-
+	rm -rf .mypy_cache/

@@ -2,7 +2,7 @@ from unittest.mock import MagicMock
 from llm.responses import get_llm_response
 
 
-def test_get_llm_response_structured_mock(): 
+def test_get_llm_response_structured_mock():
     fake_choice = MagicMock()
     fake_choice.message.content = "it's a test"
 

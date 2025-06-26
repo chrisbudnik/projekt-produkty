@@ -4,11 +4,13 @@ from ui.stocks_data_page import filter_data
 
 
 def test_filter_data():
-    df = pd.DataFrame({
-        "Date": pd.to_datetime(["2023-01-01", "2023-01-05", "2023-01-10"]),
-        "Ticker": ["ABC", "XYZ", "ABC"],
-        "Close": [100, 200, 150]
-    })
+    df = pd.DataFrame(
+        {
+            "Date": pd.to_datetime(["2023-01-01", "2023-01-05", "2023-01-10"]),
+            "Ticker": ["ABC", "XYZ", "ABC"],
+            "Close": [100, 200, 150],
+        }
+    )
 
     filtered = filter_data(df, "ABC", datetime(2023, 1, 1), datetime(2023, 1, 10))
 

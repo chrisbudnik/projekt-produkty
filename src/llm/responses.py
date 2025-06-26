@@ -5,7 +5,7 @@ def get_llm_response(client: OpenAI, prompt: str, model: str = "gpt-4.1") -> str
     """
     Get a response from the OpenAI LLM.
     """
-    
+
     response = client.chat.completions.create(
         model=model,
         messages=[{"role": "user", "content": prompt}],

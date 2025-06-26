@@ -5,12 +5,7 @@ from geopy.geocoders import Nominatim
 from timezonefinder import TimezoneFinder
 
 
-import os
-import sys
 from pathlib import Path
-
-import folium
-
 
 
 # Mapowanie kodów pogodowych
@@ -42,7 +37,7 @@ WEATHER_CODES_EN = {
     86: "Heavy snow showers",
     95: "Thunderstorm",
     96: "Thunderstorm with slight hail",
-    99: "Thunderstorm with heavy hail"
+    99: "Thunderstorm with heavy hail",
 }
 
 WEATHER_CODES_PL = {
@@ -73,10 +68,11 @@ WEATHER_CODES_PL = {
     86: "Silne przelotne opady śniegu",
     95: "Burza",
     96: "Burza z lekkim gradem",
-    99: "Burza z silnym gradem"
+    99: "Burza z silnym gradem",
 }
 
-def get_weather(latitude, longitude, save_path='./temp/weather.csv'):
+
+def get_weather(latitude, longitude, save_path="./temp/weather.csv"):
     save_path = Path(save_path)
     save_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -103,19 +99,25 @@ def get_weather(latitude, longitude, save_path='./temp/weather.csv'):
         df_next_5d = df_hourly[df_hourly["time"] > now].head(120)
 
         # Opisy i burza
-        df_next_5d["storm"] = df_next_5d["weathercode"].apply(lambda c: "yes" if c in [95, 96, 99] else "no")
-        df_next_5d["weather description"] = df_next_5d["weathercode"].map(WEATHER_CODES_EN)
+        df_next_5d["storm"] = df_next_5d["weathercode"].apply(
+            lambda c: "yes" if c in [95, 96, 99] else "no"
+        )
+        df_next_5d["weather description"] = df_next_5d["weathercode"].map(
+            WEATHER_CODES_EN
+        )
         df_next_5d["opis pogody [PL]"] = df_next_5d["weathercode"].map(WEATHER_CODES_PL)
 
         # Zmiana nazw kolumn
-        df_next_5d = df_next_5d.rename(columns={
-            "temperature_2m": "temperature [°C]",
-            "relative_humidity_2m": "humidity [%]",
-            "wind_speed_10m": "wind speed [km/h]",
-            "precipitation": "precipitation [mm]",
-            "rain": "rain [mm]",
-            "snowfall": "snowfall [cm]"
-        })
+        df_next_5d = df_next_5d.rename(
+            columns={
+                "temperature_2m": "temperature [°C]",
+                "relative_humidity_2m": "humidity [%]",
+                "wind_speed_10m": "wind speed [km/h]",
+                "precipitation": "precipitation [mm]",
+                "rain": "rain [mm]",
+                "snowfall": "snowfall [cm]",
+            }
+        )
 
         df_next_5d = df_next_5d.drop(columns=["weathercode"])
 
@@ -126,7 +128,14 @@ def get_weather(latitude, longitude, save_path='./temp/weather.csv'):
     else:
         raise Exception(f"Failed to fetch data: {response.status_code}")
 
-def get_weather_forecast(latitude, longitude, days, interval_hours=12, save_path='./temp/weather_forecast.csv'):
+
+def get_weather_forecast(
+    latitude,
+    longitude,
+    days,
+    interval_hours=12,
+    save_path="./temp/weather_forecast.csv",
+):
     save_path = Path(save_path)
     save_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -151,18 +160,26 @@ def get_weather_forecast(latitude, longitude, days, interval_hours=12, save_path
 
         df_filtered = df_hourly.iloc[::interval_hours].head(samples_needed)
 
-        df_filtered["storm"] = df_filtered["weathercode"].apply(lambda code: "yes" if code in [95, 96, 99] else "no")
-        df_filtered["weather description"] = df_filtered["weathercode"].map(WEATHER_CODES_EN)
-        df_filtered["opis pogody [PL]"] = df_filtered["weathercode"].map(WEATHER_CODES_PL)
+        df_filtered["storm"] = df_filtered["weathercode"].apply(
+            lambda code: "yes" if code in [95, 96, 99] else "no"
+        )
+        df_filtered["weather description"] = df_filtered["weathercode"].map(
+            WEATHER_CODES_EN
+        )
+        df_filtered["opis pogody [PL]"] = df_filtered["weathercode"].map(
+            WEATHER_CODES_PL
+        )
 
-        df_filtered = df_filtered.rename(columns={
-            "temperature_2m": "temperature [°C]",
-            "relative_humidity_2m": "humidity [%]",
-            "wind_speed_10m": "wind speed [km/h]",
-            "precipitation": "precipitation [mm]",
-            "rain": "rain [mm]",
-            "snowfall": "snowfall [cm]"
-        })
+        df_filtered = df_filtered.rename(
+            columns={
+                "temperature_2m": "temperature [°C]",
+                "relative_humidity_2m": "humidity [%]",
+                "wind_speed_10m": "wind speed [km/h]",
+                "precipitation": "precipitation [mm]",
+                "rain": "rain [mm]",
+                "snowfall": "snowfall [cm]",
+            }
+        )
 
         df_filtered = df_filtered.drop(columns=["weathercode"])
 
@@ -172,6 +189,7 @@ def get_weather_forecast(latitude, longitude, days, interval_hours=12, save_path
     else:
         raise Exception(f"Failed to fetch data: {response.status_code}")
 
+
 def get_location_and_timezone(city, country=None, postal_code=None):
     geolocator = Nominatim(user_agent="location-tz-app")
     query = city
@@ -179,7 +197,7 @@ def get_location_and_timezone(city, country=None, postal_code=None):
         query += f", {country}"
     if postal_code:
         query += f", {postal_code}"
-    
+
     location = geolocator.geocode(query)
     if location is None:
         return {"error": "Location not found"}
@@ -191,6 +209,5 @@ def get_location_and_timezone(city, country=None, postal_code=None):
         "location": location.address,
         "latitude": location.latitude,
         "longitude": location.longitude,
-        "timezone": timezone_name
+        "timezone": timezone_name,
     }
-
