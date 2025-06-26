@@ -38,6 +38,7 @@ dev = [
     "black>=25.1.0",
     "mypy>=1.16.1",
     "projekt-produkty",
+    "pylint>=3.3.7",
     "pytest>=8.4.0",
     "ruff>=0.12.0",
 ]

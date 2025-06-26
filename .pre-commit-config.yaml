@@ -16,3 +16,12 @@ repos:
     rev: 24.3.0
     hooks:
       - id: black
+
+  - repo: https://github.com/pre-commit/mirrors-pylint
+    rev: v3.0.0a5
+    hooks:
+      - id: pylint
+        args:
+          - src
+          - "--fail-under=7"
+          - "--disable=missing-docstring,line-too-long,invalid-name,wrong-import-order,duplicate-code"

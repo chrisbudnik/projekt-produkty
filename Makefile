@@ -30,3 +30,4 @@ clean:
 	rm -rf .ruff_cache/
 	rm -rf .venv/
 	rm -rf .mypy_cache/
+	rm -rf .ruff_cache/
