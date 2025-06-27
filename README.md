@@ -33,5 +33,5 @@ W karcie `Ustawienia` (nawigacja za pomocą paska bocznego), należy przekopiowa
 następnie zaakceptować.
 
 ## Lokalizacja
-W celu wybrania lokalizacji, należy zaznaczyć na mapie odpowiedni punkt - wybór trzeba potwierdzić przyciskiem 
+W celu wybrania lokalizacji, należy zaznaczyć na mapie odpowiedni punkt - wybór trzeba potwierdzić przyciskiem
 umiejscowionym poniżej mapki (przy pierwszej selekcji może pojawić się niestandardowo nisko).
