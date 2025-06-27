@@ -30,4 +30,4 @@ jobs:
         run: uvx black --check src tests
 
       - name: Run pylint
-        run: uvx pylint src --fail-under=8 --disable=missing-docstring,line-too-long
+        run: uv run pylint src --fail-under=8 --disable=missing-docstring,line-too-long
